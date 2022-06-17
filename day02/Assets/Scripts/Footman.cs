@@ -9,21 +9,27 @@ public class Footman : MonoBehaviour
     private Vector3 _targetPosition;
     public float speed = 1f;
     private Animator _animator;
-    private bool _lookingRight = true;
-    
+    [SerializeField] private AudioSource run;
+    [SerializeField] public GameObject unitsController;
+    private UnitsController _controller;
     void Start()
     {
         _animator = GetComponent<Animator>();
+        _controller = unitsController.GetComponent<UnitsController>();
     }
 
     void Update()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(0))
         {
-            SetTargetPosition();
+            if (_controller.units.Contains(this.gameObject))
+            {
+                SetTargetPosition();
+                run.Play();
+            }
         }
 
-        if (_isMoving)
+        if (_isMoving && Input.GetKey(KeyCode.LeftControl) == false)
         {
             Move();
         }
@@ -35,25 +41,18 @@ public class Footman : MonoBehaviour
         _targetPosition.z = transform.position.z;
 
         _isMoving = true;
-
+        
     }
 
     private void Move()
     {
         transform.position = Vector3.MoveTowards(transform.position, _targetPosition, speed * Time.deltaTime);
-        _animator.Play("runRight");
         
-        if (_targetPosition.x > transform.position.x && !_lookingRight) Flip();
-        if (_targetPosition.x < transform.position.x && _lookingRight) Flip();
+        _animator.SetFloat("x", _targetPosition.x - transform.position.x);
+        _animator.SetFloat("y", _targetPosition.y - transform.position.y);
         if (transform.position == _targetPosition)
         {
             _isMoving = false;
         }
-    }
-
-    private void Flip()
-    {
-        _lookingRight = !_lookingRight;
-        transform.Rotate(0,100f,0);
     }
 }
