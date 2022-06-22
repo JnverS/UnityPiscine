@@ -29,33 +29,70 @@ public class CameraController : MonoBehaviour
     {
         KeyMove();
         MouseMove();
+        ObjectDetermination();
     }
 
     private void KeyMove()
     {
         if (Input.GetKey(KeyCode.W))
-            transform.localPosition += transform.forward * speed * Time.deltaTime;        
+            Move(Vector3.forward);        
         if (Input.GetKey(KeyCode.S))
-            transform.localPosition += -transform.forward * speed * Time.deltaTime;        
+            Move(Vector3.back);        
         if (Input.GetKey(KeyCode.D))
-            transform.localPosition += transform.right * speed * Time.deltaTime;        
+            Move(Vector3.right);       
         if (Input.GetKey(KeyCode.A))
-            transform.localPosition += -transform.right * speed * Time.deltaTime;
+            Move(Vector3.left); 
     }
 
+    void Move(Vector3 dir)
+    {
+        transform.Translate(dir * Time.deltaTime * speed);
+        transform.position = new Vector3(transform.position.x, 15.312f, transform.position.z);
+    }
     private void MouseMove()
     {
-        // return;
         float tmp = pitch - (mouseY * Input.GetAxis("Mouse Y"));
         if (tmp >= -30f && tmp <= 30f)
             pitch = tmp;
         yaw += mouseX * Input.GetAxis("Mouse X");
-        transform.eulerAngles = new Vector3(pitch, yaw+90, 0);
+        transform.eulerAngles = new Vector3(pitch, yaw + 90, 0);
     }
 
     private void OnParticleCollision(GameObject other)
     {
         if (gameController.cctvDetected)
             gameController.detectionLevel -= 0.05f;
+    }
+    private void ObjectDetermination()
+    {
+        Ray ray = _camera.ViewportPointToRay(new Vector3(0.5F, 0.5F, 0));
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            string hitObject = hit.transform.name;
+            float distance = Vector3.Distance(hit.transform.position, transform.position);
+            switch (hitObject)
+            {
+                case "KeyCard":
+                    gameController.objectVisible = 1;
+                    break;
+                case "KeyCardReader":
+                    gameController.objectVisible = 2;
+                    Debug.Log(gameController.objectVisible);
+                    break;
+                case "docs":
+                    gameController.objectVisible = 3;
+                    break;
+                default:
+                    gameController.objectVisible = -1;
+                    break;
+            }
+            if (distance > 3.7f)
+                gameController.objectVisible = -1;
+        }
+        else
+        {
+            gameController.objectVisible = -1;
+        }
     }
 }

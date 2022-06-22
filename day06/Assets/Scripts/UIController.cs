@@ -30,7 +30,7 @@ public class UIController : MonoBehaviour
     public void GameMessage(string str)
     {
         gameOver.SetActive(true);
-        if (!missionText)
+        if (!startedText)
             StartCoroutine(AutoText(str));
     }
     
@@ -50,6 +50,11 @@ public class UIController : MonoBehaviour
             warningPanel.SetActive(false);
         }
     }
+
+    public void SetInstructions(string str)
+    {
+        instructions.text = str;
+    }
     private IEnumerator AutoText(string str)
     {
         startedText = true;
@@ -58,7 +63,7 @@ public class UIController : MonoBehaviour
         for (int i = 0; i < gameOverText.Length; i++)
         {
             gameOverMessage.text = gameOverText.Substring(0, i);
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.3f);
         }
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
